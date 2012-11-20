@@ -416,6 +416,22 @@ class Article < Content
     user.admin? || user_id == user.id
   end
 
+  def merge_with(other_id)
+    logger.error %{Merging}
+    other = Article.find(other_id)
+    self.content_fields.each do |field|
+      self[field] += other[field]
+    end
+    other.comments.each do |comment|
+      comment.change_article!(self)
+      logger.error %{Moving comment #{comment.body}}
+    end
+    self.save!
+
+    other.reload
+    other.destroy
+  end
+
   protected
 
   def set_published_at
@@ -467,19 +483,4 @@ class Article < Content
     return from..to
   end
 
-  def merge_with(other_id)
-    logger.error %{Merging}
-    other = Article.find(other_id)
-    self.content_fields.each do |field|
-      self[field] += other[field]
-    end
-    other.comments.each do |comment|
-      comment.change_article!(self)
-      logger.error %{Moving comment #{comment.body}}
-    end
-    self.save!
-
-    other.reload
-    other.destroy
-  end
 end

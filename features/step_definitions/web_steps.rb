@@ -94,6 +94,11 @@ And /^I add comment "([^"]*)" to article "([^"]*)" as "([^"]*)"$/ do |comment, a
   end
 end
 
+When /^I fill in "([^"]*)" with id of "([^"]*)"$/ do |field, article_title|
+  article_id = Article.find_by_title(article_title).id
+  fill_in(field, :with => article_id)
+end
+
 # Single-line step scoper
 When /^(.*) within (.*[^:])$/ do |step, parent|
   with_scope(parent) { When step }

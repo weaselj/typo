@@ -15,11 +15,11 @@ Feature: Merge Articles
     Given I am logged in as admin
     And I go to the admin content page
     And I follow "Foo"
-    Then I should see "Merge"
-    When I fill in "merge_with" with "2"
-    And I press "Merge Articles"
+    Then I should see "Merge Articles"
+    When I fill in "merge_with" with id of "Boo"
+    And I press "Merge"
     Then I should be on the admin content page
-    And I should see "Articles were successfully merged"
+    And I should see "The articles were successfully merged"
     When I go to the home page
     Then I should see "Foo"
     When I follow "Foo"
@@ -42,4 +42,4 @@ Feature: Merge Articles
     When I fill in "merge_with" with "5"
     And I press "Merge"
     Then I should be on the admin content page
-    And I should see "Error, couldn't find article"
+    And I should see "Error, Couldn't find Article"
