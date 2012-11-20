@@ -32,6 +32,12 @@ class Comment < Feedback
     "Comment on #{article.title} by #{author}"
   end
 
+  def change_article!(to_article)
+    self.article_id = to_article.id
+    # user = to_article.user
+    self.save!
+  end
+
   protected
 
   def article_allows_feedback?

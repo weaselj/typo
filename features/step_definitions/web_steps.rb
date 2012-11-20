@@ -35,23 +35,62 @@ Given /^the blog is set up$/ do
   Blog.default.update_attributes!({:blog_name => 'Teh Blag',
                                    :base_url => 'http://localhost:3000'});
   Blog.default.save!
-  User.create!({:login => 'admin',
-                :password => 'aaaaaaaa',
-                :email => 'joe@snow.com',
-                :profile_id => 1,
-                :name => 'admin',
+  step("I add user admin as admin")
+end
+
+And /^I add user (.*) as (.*)$/ do |user_name, role|
+  User.create!({:login => user_name,
+                :password => user_name + '1234',
+                :email => user_name+'@snow.com',
+                :profile_id => Profile.find_by_label(role).id,
+                :name => user_name,
                 :state => 'active'})
 end
 
 And /^I am logged into the admin panel$/ do
+  step("I am logged in as admin")
+end
+
+And /^I am logged in as (.*)$/ do |user_name|
   visit '/accounts/login'
-  fill_in 'user_login', :with => 'admin'
-  fill_in 'user_password', :with => 'aaaaaaaa'
+  if page.has_content?('Dashboard')
+    visit '/accounts/logout'
+  end
+  fill_in 'user_login', :with => user_name
+  fill_in 'user_password', :with => user_name + '1234'
   click_button 'Login'
   if page.respond_to? :should
     page.should have_content('Login successful')
   else
     assert page.has_content?('Login successful')
+  end
+end
+
+And /^I create article "([^"]*)" with text "([^"]*)" as (.*)$/ do |title, content, user|
+  step(%{I am logged in as #{user}})
+  visit '/admin/content/new'
+  fill_in 'article_title', :with => title
+  fill_in 'article__body_and_extended_editor', :with => content
+  click_button 'Publish'
+  if page.respond_to? :should
+    page.should have_content('Article was successfully created')
+  else
+    assert page.has_content?('Article was successfully created')
+  end
+end
+
+And /^I add comment "([^"]*)" to article "([^"]*)" as "([^"]*)"$/ do |comment, article, author|
+  visit '/'
+  click_link article
+  fill_in 'comment_author', :with => author
+  fill_in 'comment_body', :with => comment
+  click_button 'comment'
+  if page.respond_to? :should
+    page.should have_content(%{By #{author}})
+    page.should have_content(comment)
+  else
+    assert page.has_content?(%{By #{author}})
+    assert page.has_content?(comment)
   end
 end
 

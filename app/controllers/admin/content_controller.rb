@@ -113,6 +113,19 @@ class Admin::ContentController < Admin::BaseController
     render :text => nil
   end
 
+  def merge
+    #begin
+      Article.find(params[:id]).merge_with(params[:merge_with])
+    #rescue  =>e
+    #  flash[:error] = _("Error, " + e.message)
+    #  return(redirect_to :action => 'index')
+    #end
+
+    flash[:notice] = _("The articles were successfully merged")
+    return(redirect_to :action => 'index')
+
+  end
+
   protected
 
   def get_fresh_or_existing_draft_for_article
@@ -180,6 +193,7 @@ class Admin::ContentController < Admin::BaseController
     @images = Resource.images_by_created_at.page(params[:page]).per(10)
     @resources = Resource.without_images_by_filename
     @macros = TextFilter.macro_filters
+    @has_merge = current_user.admin?
     render 'new'
   end
 
